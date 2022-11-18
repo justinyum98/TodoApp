@@ -16,12 +16,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     private static final int VERSION = 1;
     private static final String NAME = "toDoListDatabase";
-    private static final String TODO_TABLE = "todo";
+    private static final String TODO_TABLE = "todoTable";
     private static final String ID = "id";
     private static final String TODO = "todo";
     private static final String STATUS = "status";
-    private static final String CREATE_TODO_TABLE = "CREATE TABLE " + TODO_TABLE + "(" + ID
-            + " INTEGER PRIMARY KEY AUTOINCREMENT, " + TODO + "TEXT, " + STATUS + " INTEGER)";
+    private static final String CREATE_TODO_TABLE = "CREATE TABLE " + TODO_TABLE + "(" + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + TODO + " TEXT, "
+            + STATUS + " INTEGER)";
     private SQLiteDatabase db;
 
     public DatabaseHandler(Context context) {
@@ -36,7 +36,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Drop the older tables.
-        db.execSQL("DROP TABLE IF EXISTS" + TODO_TABLE);
+        db.execSQL("DROP TABLE IF EXISTS " + TODO_TABLE);
         // Create tables again.
         onCreate(db);
     }
@@ -72,6 +72,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             }
         } finally {
             db.endTransaction();
+            assert cur != null;
             cur.close();
         }
         return todoList;
@@ -80,16 +81,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void updateStatus(int id, int status) {
         ContentValues cv = new ContentValues();
         cv.put(STATUS, status);
-        db.update(TODO_TABLE, cv, ID + "=?", new String[] { String.valueOf(id) });
+        db.update(TODO_TABLE, cv, ID + "= ?", new String[] { String.valueOf(id) });
     }
 
     public void updateTodo(int id, String todo) {
         ContentValues cv = new ContentValues();
         cv.put(TODO, todo);
-        db.update(TODO_TABLE, cv, ID + "+?", new String[] { String.valueOf(id) });
+        db.update(TODO_TABLE, cv, ID + "= ?", new String[] { String.valueOf(id) });
     }
 
     public void deleteTodo(int id) {
-        db.delete(TODO_TABLE, ID + "=?", new String[] { String.valueOf(id) });
+        db.delete(TODO_TABLE, ID + "= ?", new String[] { String.valueOf(id) });
     }
 }

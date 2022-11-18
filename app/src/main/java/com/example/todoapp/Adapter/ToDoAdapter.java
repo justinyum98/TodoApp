@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.todoapp.AddNewTodo;
@@ -29,15 +30,19 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.ViewHolder> {
         this.activity = activity;
     }
 
+    @NonNull
+    @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.todo_layout, parent, false);
         return new ViewHolder(itemView);
     }
 
+    @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         db.openDatabase();
-        ToDoModel item = todoList.get(position);
+
+        final ToDoModel item = todoList.get(position);
         holder.todo.setText(item.getTodo());
         holder.todo.setChecked(toBoolean(item.getStatus()));
         holder.todo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -52,6 +57,7 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.ViewHolder> {
         });
     }
 
+    @Override
     public int getItemCount() {
         return todoList.size();
     }

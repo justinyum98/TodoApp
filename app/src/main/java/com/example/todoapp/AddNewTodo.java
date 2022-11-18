@@ -13,11 +13,15 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.example.todoapp.Model.ToDoModel;
 import com.example.todoapp.Utils.DatabaseHandler;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+
+import java.util.Objects;
 
 public class AddNewTodo extends BottomSheetDialogFragment {
 
@@ -32,26 +36,25 @@ public class AddNewTodo extends BottomSheetDialogFragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setStyle(STYLE_NORMAL, R.style.DialogStyle);
     }
 
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.new_todo, container, false);
-        getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        Objects.requireNonNull(getDialog()).getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         return view;
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        newTodoText = getView().findViewById(R.id.newTodoText);
-        newTodoSaveButton = getView().findViewById(R.id.newTodoButton);
-
-        db = new DatabaseHandler(getActivity());
-        db.openDatabase();
+        newTodoText = requireView().findViewById(R.id.newTodoText);
+        newTodoSaveButton = requireView().findViewById(R.id.newTodoButton);
 
         boolean isUpdate = false;
         final Bundle bundle = getArguments();
@@ -59,10 +62,15 @@ public class AddNewTodo extends BottomSheetDialogFragment {
             isUpdate = true;
             String todo = bundle.getString("todo");
             newTodoText.setText(todo);
+            assert todo != null;
             if (todo.length() > 0) {
-                newTodoSaveButton.setTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimaryDark));
+                newTodoSaveButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorPrimaryDark));
             }
         }
+
+        db = new DatabaseHandler(getActivity());
+        db.openDatabase();
+
         newTodoText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -75,7 +83,7 @@ public class AddNewTodo extends BottomSheetDialogFragment {
                     newTodoSaveButton.setTextColor(Color.GRAY);
                 } else {
                     newTodoSaveButton.setEnabled(true);
-                    newTodoSaveButton.setTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimaryDark));
+                    newTodoSaveButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorPrimaryDark));
                 }
             }
 
@@ -84,7 +92,7 @@ public class AddNewTodo extends BottomSheetDialogFragment {
             }
         });
 
-        boolean finalIsUpdate = isUpdate;
+        final boolean finalIsUpdate = isUpdate;
         newTodoSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -95,6 +103,7 @@ public class AddNewTodo extends BottomSheetDialogFragment {
                     ToDoModel todo = new ToDoModel();
                     todo.setTodo(text);
                     todo.setStatus(0);
+                    db.insertTodo(todo);
                 }
                 dismiss();
             }
@@ -102,7 +111,7 @@ public class AddNewTodo extends BottomSheetDialogFragment {
     }
 
     @Override
-    public void onDismiss(DialogInterface dialog) {
+    public void onDismiss(@NonNull DialogInterface dialog) {
         Activity activity = getActivity();
         if (activity instanceof DialogCloseListener) {
             ((DialogCloseListener)activity).handleDialogClose(dialog);
